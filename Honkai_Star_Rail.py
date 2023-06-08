@@ -305,7 +305,7 @@ if __name__ == "__main__":
                         if questionary.select(_("请问要退出脚本吗？"), [_("退出"), _("返回主菜单")]).ask() == _("返回主菜单"):
                             select()
             select()
-            sra.end()
+            #sra.end()
     except ModuleNotFoundError as e:
         print(traceback.format_exc())
         #os.system("pip install -r requirements.txt")
