@@ -51,7 +51,7 @@ class SRA:
                 'skip_verify': False,
                 'type': "star",
                 'version': "main",
-                'url_zip': "https://github.com/Starry-Wind/StarRailAssistant/archive/refs/heads/main.zip",
+                'url_zip': f"https://github.com/{sra_config_obj.github_source}/StarRailAssistant/archive/refs/heads/main.zip",
                 'unzip_path': ".",
                 'keep_folder': ['.git', 'logs', 'temp', 'map', 'tmp', 'venv'],
                 'keep_file': ['config.json', 'version.json', 'star_list.json', 'README_CHT.md', 'README.md'],
@@ -63,7 +63,7 @@ class SRA:
                 'skip_verify': False,
                 'type': "map",
                 'version': "map",
-                'url_zip': "https://raw.githubusercontent.com/Starry-Wind/StarRailAssistant/map/map.zip",
+                'url_zip': f"https://raw.githubusercontent.com/{sra_config_obj.github_source}/StarRailAssistant/map/map.zip",
                 'unzip_path': "map",
                 'keep_folder': [],
                 'keep_file': [],
@@ -75,7 +75,7 @@ class SRA:
                 'skip_verify': False,
                 'type': "temp",
                 'version': "map",
-                'url_zip': "https://raw.githubusercontent.com/Starry-Wind/StarRailAssistant/map/temp.zip",
+                'url_zip': f"https://raw.githubusercontent.com/{sra_config_obj.github_source}/StarRailAssistant/map/temp.zip",
                 'unzip_path': "temp",
                 'keep_folder': [],
                 'keep_file': [],
@@ -125,19 +125,27 @@ class SRA:
 
     def choose_map(self, option:str=_('大世界')):
         if option == _("大世界"):
-            title_ = _("请选择起始星球：")
-            options_map = {_("空间站「黑塔」"): "1", _("雅利洛-VI"): "2", _("仙舟「罗浮」"): "3"}
-            option_ = questionary.select(title_, list(options_map.keys())).ask()
-            main_map = options_map.get(option_)
-            title_ = _("请选择起始地图：")
-            __, map_list_map = read_maps()
-            options_map = map_list_map.get(main_map)
-            if not options_map:
-                return None, _("你没下载地图，拿什么选？")
-            keys = list(options_map.keys())
-            values = list(options_map.values())
-            option_ = questionary.select(title_, values).ask()
-            side_map = keys[values.index(option_)]
+            def select_word():
+                title_ = _("请选择起始星球：")
+                options_map = {_("空间站「黑塔」"): "1", _("雅利洛-VI"): "2", _("仙舟「罗浮」"): "3"}
+                option_ = questionary.select(title_, list(options_map.keys())).ask()
+                main_map = options_map.get(option_)
+                return select_map(main_map)
+            def select_map(main_map):
+                title_ = _("请选择起始地图：")
+                __, map_list_map = read_maps()
+                options_map = map_list_map.get(main_map)
+                if not options_map:
+                    return None, _("你没下载地图，拿什么选？")
+                keys = list(options_map.keys())
+                values = list(options_map.values())+[_("返回上一级")]
+                option_ = questionary.select(title_, values).ask()
+                if option_ == _("返回上一级"):
+                    return select_word()
+                else:
+                    side_map = keys[values.index(option_)]
+                    return main_map, side_map
+            main_map, side_map = select_word()
             return f"{main_map}-{side_map}", None
         elif option == _("模拟宇宙"):
             title_ = _("请选择第几宇宙：")
